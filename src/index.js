@@ -19,7 +19,10 @@ document.addEventListener("DOMContentLoaded", () => {
 document.addEventListener('DOMContentLoaded', () => {
   fetch('http://localhost:3000/toys')
   .then(response => response.json())
-  .then(toyList => toyList.map(toy => createCard(toy)))
+  .then(toyList => {
+    toyList.map(toy => createCard(toy))
+    submitLikes(toyList)
+  })
 })
 
 //function to create card and add to DOM
@@ -39,6 +42,7 @@ function createCard(toy) {
   img.className = 'toy-avatar'
 
   p.textContent = `${toy.likes} likes`
+  p.className = `tl${toy.likes}`
 
   button.className = "like-btn"
   button.id = `t${toy.id}`
@@ -84,3 +88,28 @@ function postNewToy(newToy) {
 }
 
 //function containing event listener for like button
+function submitLikes(toyList) {
+  const likeButtons = Array.from(document.querySelectorAll('.like-btn'))
+  likeButtons.map(button => {
+    button.addEventListener('click', e => {
+      const id = e.target.id.slice(1)
+      const card = e.target.parentElement
+      const toyObj = {
+        image: card.querySelector('img').src,
+        likes: parseInt(card.querySelector('p').className.slice(2), 10) + 1,
+        name: card.querySelector('h2').textContent
+      }
+      fetch(`http://localhost:3000/toys/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(toyObj)
+      })
+      .then(response => response.json())
+      .then(toy => {
+        card.querySelector('p').textContent = `${toy.likes} likes`
+        card.querySelector('p').className = `tl${toy.likes}`
+      })
+  })
+})}
