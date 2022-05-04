@@ -94,17 +94,12 @@ function submitLikes(toyList) {
     button.addEventListener('click', e => {
       const id = e.target.id.slice(1)
       const card = e.target.parentElement
-      const toyObj = {
-        image: card.querySelector('img').src,
-        likes: parseInt(card.querySelector('p').className.slice(2), 10) + 1,
-        name: card.querySelector('h2').textContent
-      }
       fetch(`http://localhost:3000/toys/${id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(toyObj)
+        body: JSON.stringify({likes: parseInt(card.querySelector('p').className.slice(2), 10) + 1})
       })
       .then(response => response.json())
       .then(toy => {
